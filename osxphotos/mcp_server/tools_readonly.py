@@ -30,6 +30,7 @@ def search_photos(q: QueryOptionsLike, ctx: Context) -> list[str]:
         "keywords": "keyword",
         "persons": "person",
         "albums": "album",
+        "images": "photos",
     }
     mapped_args = {arg_map.get(k, k): v for k, v in query_args.items()}
     

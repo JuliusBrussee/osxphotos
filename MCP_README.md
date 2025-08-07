@@ -59,19 +59,25 @@ These tools allow the AI to query and retrieve information from the Photos libra
 -   `search_photos(query: QueryOptionsLike)`: A powerful tool that allows the AI to search for photos using a rich set of query options, mirroring the `osxphotos.query()` method.
 -   `photo_info(uuid: str)`: Retrieves the detailed metadata for a single photo.
 -   `estimate_export(uuids: list[str], options: PhotoInfoExportOptions)`: A dry-run tool that estimates the results of an export operation, including a list of files to be exported, potential filename conflicts, and the total size of the export.
+-   `list_library_structure()`: Provides a complete overview of the library's folder and album hierarchy.
+-   `get_photo_score(uuid: str)`: Exposes the aesthetic scores for a photo directly.
+-   `get_detected_text(uuid: str)`: Provides direct, on-demand access to the text detection engine.
+-   `render_template(template_str: str, uuids: list[str])`: Renders a template string for a list of photos.
 
 ### 3.3. Write-Enabled Tools
 
 These tools, which are only active when the `--allow-write` flag is used, allow the AI to make changes to the Photos library:
 
 -   `export_photos(uuids: list[str], options: PhotoInfoExportOptions)`: Exports photos to a specified destination on disk. This tool is implemented asynchronously to handle long-running exports and provides progress and cancellation support.
--   `update_photos(uuids: list[str], title: str, description: str, favorite: bool, add_keywords: list[str], remove_keywords: list[str])`: A unified tool to update photo metadata.
+-   `update_photos(uuids: list[str], title: str, description: str, favorite: bool, add_keywords: list[str], remove_keywords: list[str], date: str)`: A unified tool to update photo metadata.
 -   `add_keywords(uuids: list[str], keywords: list[str])`: Adds keywords to a set of photos.
 -   `create_album(title: str)`: Creates a new album in the Photos library.
 -   `add_to_album(album_uuid: str, uuids: list[str])`: Adds a set of photos to an existing album.
 -   `remove_from_album(album_uuid: str, photo_uuids: list[str])`: Removes photos from an album.
 -   `trash_photos(uuids: list[str])`: Moves photos to the "Recently Deleted" album.
 -   `write_exif(uuids: list[str], fields: dict)`: Writes EXIF data to a set of photos using `osxphotos`' built-in ExifTool integration.
+-   `create_folder(name: str, parent_uuid: str)`: Creates a new folder in Photos.
+-   `set_album_keyphoto(album_uuid: str, photo_uuid: str)`: Sets the key photo for an album.
 
 ### 3.4. Prompts
 

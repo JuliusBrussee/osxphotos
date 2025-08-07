@@ -18,6 +18,7 @@ def update_photos(
     favorite: bool = None,
     add_keywords: List[str] = None,
     remove_keywords: List[str] = None,
+    date: str = None,
     ctx: Context = None,
 ) -> Dict[str, Any]:
     """
@@ -29,6 +30,7 @@ def update_photos(
     :param favorite: The new favorite status for the photos.
     :param add_keywords: A list of keywords to add to the photos.
     :param remove_keywords: A list of keywords to remove from the photos.
+    :param date: The new date for the photos in ISO 8601 format.
     :return: A dictionary with success count and a list of errors.
     """
     if not write_enabled():
@@ -54,6 +56,8 @@ def update_photos(
                 existing_keywords = set(photo.keywords)
                 new_keywords = existing_keywords.difference(set(remove_keywords))
                 photo.keywords = list(new_keywords)
+            if date:
+                photo.date = photoscript.utils.datetime_from_iso_str(date)
             success_count += 1
         except Exception as e:
             errors.append({"uuid": uuid, "error": "Failed to update photo."})
@@ -223,3 +227,45 @@ def write_exif(uuids: List[str], fields: Dict, ctx: Context) -> Dict[str, Any]:
             errors.append({"uuid": uuid, "error": "Failed to write EXIF data."})
 
     return {"success": success_count, "errors": errors}
+
+def create_folder(name: str, parent_uuid: str = None, ctx: Context = None) -> Dict[str, Any]:
+    """
+    Creates a new folder in Photos.
+
+    :param name: The name of the new folder.
+    :param parent_uuid: The UUID of the parent folder, if any.
+    :return: A dictionary with the new folder's UUID and name, or an error.
+    """
+    if not write_enabled():
+        return {"error": "write operations not enabled"}
+
+    try:
+        library = photoscript.PhotosLibrary()
+        if parent_uuid:
+            parent_folder = photoscript.Folder(parent_uuid)
+            folder = parent_folder.create_folder(name)
+        else:
+            folder = library.create_folder(name)
+        return {"uuid": folder.uuid, "name": folder.name}
+    except Exception as e:
+        return {"error": "Failed to create folder."}
+
+
+def set_album_keyphoto(album_uuid: str, photo_uuid: str, ctx: Context = None) -> Dict[str, Any]:
+    """
+    Sets the key photo for an album.
+
+    :param album_uuid: The UUID of the album.
+    :param photo_uuid: The UUID of the photo to set as the key photo.
+    :return: A dictionary indicating success or an error.
+    """
+    if not write_enabled():
+        return {"error": "write operations not enabled"}
+
+    try:
+        album = photoscript.Album(album_uuid)
+        photo = photoscript.Photo(photo_uuid)
+        album.set_keyphoto(photo)
+        return {"success": True}
+    except Exception as e:
+        return {"error": "Failed to set key photo."}

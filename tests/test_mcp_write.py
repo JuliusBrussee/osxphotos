@@ -19,6 +19,7 @@ class TestMcpWrite(unittest.TestCase):
             favorite=True,
             add_keywords=["new_keyword"],
             remove_keywords=["old_keyword"],
+            date="2025-08-07T12:00:00",
             ctx=None,
         )
 
@@ -27,6 +28,7 @@ class TestMcpWrite(unittest.TestCase):
         self.assertEqual(mock_photo.description, "New Description")
         self.assertTrue(mock_photo.favorite)
         self.assertEqual(mock_photo.keywords, ["new_keyword"])
+        self.assertEqual(mock_photo.date, mock_photoscript.utils.datetime_from_iso_str("2025-08-07T12:00:00"))
 
     @patch("osxphotos.mcp_server.tools_write.photoscript")
     @patch.dict("os.environ", {"OSXPHOTOS_MCP_ALLOW_WRITE": "1"})
@@ -55,6 +57,33 @@ class TestMcpWrite(unittest.TestCase):
 
         mock_photoscript.Album.assert_called_with("album1")
         mock_album.remove.assert_called_once_with([mock_photo])
+
+    @patch("osxphotos.mcp_server.tools_write.photoscript")
+    @patch.dict("os.environ", {"OSXPHOTOS_MCP_ALLOW_WRITE": "1"})
+    def test_create_folder(self, mock_photoscript):
+        """Test that create_folder correctly calls photoscript."""
+        mock_library = MagicMock()
+        mock_photoscript.PhotosLibrary.return_value = mock_library
+
+        tools_write.create_folder(name="New Folder", ctx=None)
+
+        mock_library.create_folder.assert_called_once_with("New Folder")
+
+    @patch("osxphotos.mcp_server.tools_write.photoscript")
+    @patch.dict("os.environ", {"OSXPHOTOS_MCP_ALLOW_WRITE": "1"})
+    def test_set_album_keyphoto(self, mock_photoscript):
+        """Test that set_album_keyphoto correctly calls photoscript."""
+        mock_album = MagicMock()
+        mock_photoscript.Album.return_value = mock_album
+        mock_photo = MagicMock()
+        mock_photoscript.Photo.return_value = mock_photo
+
+        tools_write.set_album_keyphoto(
+            album_uuid="album1", photo_uuid="photo1", ctx=None
+        )
+
+        mock_photoscript.Album.assert_called_with("album1")
+        mock_album.set_keyphoto.assert_called_once_with(mock_photo)
 
     @patch.dict("os.environ", {"OSXPHOTOS_MCP_ALLOW_WRITE": "0"})
     def test_write_disabled(self):

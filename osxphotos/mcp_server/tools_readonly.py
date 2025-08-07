@@ -98,3 +98,63 @@ def estimate_export(uuids: List[str], options: PhotoInfoExportOptions, ctx: Cont
         "conflicts": conflicts,
         "total_size_mb": total_size / (1024 * 1024),
     }
+
+def list_library_structure(ctx: Context) -> dict:
+    """
+    Provides a complete overview of the library's folder and album hierarchy.
+
+    :return: A nested dictionary representing the library structure.
+    """
+    db = PhotosDB()
+
+    def _process_folders(folders):
+        structure = {}
+        for folder in folders:
+            structure[folder.title] = {
+                "uuid": folder.uuid,
+                "albums": {album.title: {"uuid": album.uuid} for album in folder.album_info},
+                "folders": _process_folders(folder.subfolders),
+            }
+        return structure
+
+    return _process_folders(db.folder_info)
+
+def get_photo_score(uuid: str, ctx: Context) -> dict:
+    """
+    Exposes the aesthetic scores for a photo directly.
+
+    :param uuid: The UUID of the photo.
+    :return: A dictionary containing the photo's aesthetic scores.
+    """
+    db = PhotosDB()
+    photo = db.get_photo(uuid)
+    return photo.score.asdict() if photo and photo.score else {"error": "not found or no score", "uuid": uuid}
+
+def get_detected_text(uuid: str, ctx: Context) -> list:
+    """
+    Provides direct, on-demand access to the text detection engine.
+
+    :param uuid: The UUID of the photo.
+    :return: A list of (text, confidence) tuples.
+    """
+    db = PhotosDB()
+    photo = db.get_photo(uuid)
+    return photo.detected_text() if photo else [("error: not found", 0.0)]
+
+def render_template(template_str: str, uuids: List[str], ctx: Context) -> dict:
+    """
+    Renders a template string for a list of photos.
+
+    :param template_str: The template string to render.
+    :param uuids: A list of photo UUIDs to render the template for.
+    :return: A dictionary mapping each UUID to its rendered string.
+    """
+    db = PhotosDB()
+    rendered = {}
+    for uuid in uuids:
+        photo = db.get_photo(uuid)
+        if photo:
+            rendered[uuid], _ = photo.render_template(template_str)
+        else:
+            rendered[uuid] = [f"error: photo not found: {uuid}"]
+    return rendered

@@ -20,6 +20,10 @@ mcp.tool()(tools_readonly.list_albums)
 mcp.tool()(tools_readonly.search_photos)
 mcp.tool()(tools_readonly.photo_info)
 mcp.tool()(tools_readonly.estimate_export)
+mcp.tool()(tools_readonly.list_library_structure)
+mcp.tool()(tools_readonly.get_photo_score)
+mcp.tool()(tools_readonly.get_detected_text)
+mcp.tool()(tools_readonly.render_template)
 
 # --- Tools (write) loaded conditionally (env/flag) ---
 if tools_write.write_enabled():
@@ -31,6 +35,8 @@ if tools_write.write_enabled():
     mcp.tool()(tools_write.update_photos)
     mcp.tool()(tools_write.trash_photos)
     mcp.tool()(tools_write.remove_from_album)
+    mcp.tool()(tools_write.create_folder)
+    mcp.tool()(tools_write.set_album_keyphoto)
 
 # --- Prompts ---
 mcp.prompt(title="Caption Helper")(prompts.caption_from_context)

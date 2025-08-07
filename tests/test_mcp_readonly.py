@@ -57,6 +57,73 @@ class TestMcpReadonly(unittest.TestCase):
             "Suggest user review and then use the `trash_photos` tool on the duplicates.",
         )
 
+    @patch("osxphotos.mcp_server.tools_readonly.PhotosDB")
+    def test_list_library_structure(self, mock_photosdb):
+        """Test that list_library_structure returns a nested dictionary."""
+        mock_album = MagicMock()
+        mock_album.title = "Test Album"
+        mock_album.uuid = "album1"
+
+        mock_folder = MagicMock()
+        mock_folder.title = "Test Folder"
+        mock_folder.uuid = "folder1"
+        mock_folder.album_info = [mock_album]
+        mock_folder.subfolders = []
+
+        mock_db_instance = MagicMock()
+        mock_db_instance.folder_info = [mock_folder]
+        mock_photosdb.return_value = mock_db_instance
+
+        result = tools_readonly.list_library_structure(ctx=None)
+
+        self.assertIn("Test Folder", result)
+        self.assertIn("Test Album", result["Test Folder"]["albums"])
+
+    @patch("osxphotos.mcp_server.tools_readonly.PhotosDB")
+    def test_get_photo_score(self, mock_photosdb):
+        """Test that get_photo_score returns the score of a photo."""
+        mock_score = MagicMock()
+        mock_score.asdict.return_value = {"overall": 0.8}
+
+        mock_photo = MagicMock()
+        mock_photo.score = mock_score
+
+        mock_db_instance = MagicMock()
+        mock_db_instance.get_photo.return_value = mock_photo
+        mock_photosdb.return_value = mock_db_instance
+
+        result = tools_readonly.get_photo_score("uuid1", ctx=None)
+
+        self.assertEqual(result, {"overall": 0.8})
+
+    @patch("osxphotos.mcp_server.tools_readonly.PhotosDB")
+    def test_get_detected_text(self, mock_photosdb):
+        """Test that get_detected_text returns the detected text of a photo."""
+        mock_photo = MagicMock()
+        mock_photo.detected_text.return_value = [("Hello", 0.9)]
+
+        mock_db_instance = MagicMock()
+        mock_db_instance.get_photo.return_value = mock_photo
+        mock_photosdb.return_value = mock_db_instance
+
+        result = tools_readonly.get_detected_text("uuid1", ctx=None)
+
+        self.assertEqual(result, [("Hello", 0.9)])
+
+    @patch("osxphotos.mcp_server.tools_readonly.PhotosDB")
+    def test_render_template(self, mock_photosdb):
+        """Test that render_template returns the rendered template of a photo."""
+        mock_photo = MagicMock()
+        mock_photo.render_template.return_value = (["rendered_template"], [])
+
+        mock_db_instance = MagicMock()
+        mock_db_instance.get_photo.return_value = mock_photo
+        mock_photosdb.return_value = mock_db_instance
+
+        result = tools_readonly.render_template("{template}", ["uuid1"], ctx=None)
+
+        self.assertEqual(result, {"uuid1": ["rendered_template"]})
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -65,9 +65,12 @@ These tools allow the AI to query and retrieve information from the Photos libra
 These tools, which are only active when the `--allow-write` flag is used, allow the AI to make changes to the Photos library:
 
 -   `export_photos(uuids: list[str], options: PhotoInfoExportOptions)`: Exports photos to a specified destination on disk. This tool is implemented asynchronously to handle long-running exports and provides progress and cancellation support.
+-   `update_photos(uuids: list[str], title: str, description: str, favorite: bool, add_keywords: list[str], remove_keywords: list[str])`: A unified tool to update photo metadata.
 -   `add_keywords(uuids: list[str], keywords: list[str])`: Adds keywords to a set of photos.
 -   `create_album(title: str)`: Creates a new album in the Photos library.
 -   `add_to_album(album_uuid: str, uuids: list[str])`: Adds a set of photos to an existing album.
+-   `remove_from_album(album_uuid: str, photo_uuids: list[str])`: Removes photos from an album.
+-   `trash_photos(uuids: list[str])`: Moves photos to the "Recently Deleted" album.
 -   `write_exif(uuids: list[str], fields: dict)`: Writes EXIF data to a set of photos using `osxphotos`' built-in ExifTool integration.
 
 ### 3.4. Prompts
@@ -75,7 +78,6 @@ These tools, which are only active when the `--allow-write` flag is used, allow 
 Prompts are a unique feature of MCP that allow the server to guide the AI through complex, multi-step tasks. The following prompts are implemented:
 
 -   `caption_from_context(uuid: str, style: str)`: This prompt takes a photo's UUID and a desired caption style (e.g., "plain", "travel", "journal"). It then extracts a rich set of context from the photo, including its title, description, people, location, keywords, and any detected text. It then formats this context into a prompt that it sends to the AI, asking it to generate a caption in the specified style.
--   `smart_album_query(description: str)`: This prompt takes a natural language description of a set of photos (e.g., "photos of my dog at the beach in 2023") and translates it into a structured query that the AI can then use with the `search_photos` tool. This simplifies the process of finding photos for the user.
 -   `duplicate_review(uuids: list[str])`: This prompt takes a list of photo UUIDs and uses the `PhotoInfo.duplicates` property to find potential duplicates. It then returns a structured list of duplicate sets to the AI, which can then present them to the user for review and action (e.g., deleting duplicates or adding them to an album).
 
 ## 4. Security and Safety

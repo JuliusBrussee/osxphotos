@@ -28,10 +28,13 @@ if tools_write.write_enabled():
     mcp.tool()(tools_write.create_album)
     mcp.tool()(tools_write.add_to_album)
     mcp.tool()(tools_write.write_exif)
+    mcp.tool()(tools_write.update_photos)
+    mcp.tool()(tools_write.trash_photos)
+    mcp.tool()(tools_write.remove_from_album)
 
 # --- Prompts ---
 mcp.prompt(title="Caption Helper")(prompts.caption_from_context)
-mcp.prompt(title="Smart Album Query")(prompts.smart_album_query)
+
 mcp.prompt(title="Duplicate Review")(prompts.duplicate_review)
 
 def run(transport: str = "stdio", host: str = None, port: int = None, token: str = None):

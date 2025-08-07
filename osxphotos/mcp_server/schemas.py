@@ -9,6 +9,21 @@ class QueryOptionsLike(BaseModel):
     to_date: Optional[str] = None
     images: bool = True
     movies: bool = True
+    uuid: Optional[List[str]] = None
+    title: Optional[List[str]] = None
+    description: Optional[List[str]] = None
+    favorite: Optional[bool] = None
+    hidden: Optional[bool] = None
+    edited: Optional[bool] = None
+    burst: Optional[bool] = None
+    live: Optional[bool] = None
+    portrait: Optional[bool] = None
+    panorama: Optional[bool] = None
+    uti: Optional[List[str]] = None
+    location: Optional[bool] = None
+    no_location: Optional[bool] = None
+    is_reference: Optional[bool] = None
+    in_album: Optional[bool] = None
 
 class PhotoInfoExportOptions(BaseModel):
     dest: str

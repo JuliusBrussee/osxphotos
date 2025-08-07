@@ -46,28 +46,7 @@ def caption_from_context(uuid: str, style: str = "plain", ctx: Context = None) -
     return prompt
 
 
-def smart_album_query(description: str, ctx: Context = None) -> str:
-    """
-    Helps the AI compose a QueryOptions spec based on natural language.
-    This is a simplified implementation that parses keywords, persons, and albums.
-    """
 
-    keywords = re.findall(r'keyword:(\w+)', description)
-    persons = re.findall(r'person:(\w+)', description)
-    albums = re.findall(r'album:([a-zA-Z0-9_ ]+)', description)
-
-    query = QueryOptionsLike(
-        keywords=keywords if keywords else None,
-        persons=persons if persons else None,
-        albums=albums if albums else None,
-    )
-
-    query_dict = query.model_dump(exclude_none=True)
-
-    return (
-        f"Based on the description, here is a query object you can use with the "
-        f"`search_photos` tool:\n```json\n{json.dumps(query_dict, indent=2)}\n```"
-    )
 
 
 def duplicate_review(uuids: list[str], ctx: Context = None) -> dict:
@@ -92,8 +71,9 @@ def duplicate_review(uuids: list[str], ctx: Context = None) -> dict:
             dup_set_key = frozenset([p.uuid for p in duplicates] + [uuid])
             if dup_set_key not in duplicate_sets:
                 duplicate_sets[dup_set_key] = {
-                    "uuids": [p.uuid for p in duplicates],
                     "original": photo.uuid,
+                    "duplicates": [p.uuid for p in duplicates],
+                    "recommendation": "Suggest user review and then use the `trash_photos` tool on the duplicates."
                 }
 
     # Convert the dictionary to a list of duplicate sets for the final output
